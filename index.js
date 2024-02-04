@@ -3,8 +3,10 @@ const app = express()
 const port = 3000
 
 const personalRoute = require('./routes/personal');
+const educationRoute = require('./routes/education');
 
 app.use('/personal', personalRoute);
+app.use('/education', educationRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
