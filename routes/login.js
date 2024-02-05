@@ -1,19 +1,24 @@
 const express = require('express');
-const app = express();
 const passport = require('passport');
 const cookieParser = require('cookie-parser');
 
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
-app.use(session({
+
+const authRouter = express.Router();
+const pool = require('./../db')
+
+authRouter.use(session({
     secret: 'jNRRja=gcz=$f^QIXCBj9w&xn}#n7S', //คีย์ที่ใช้ในการเข้ารหัสข้อมูล session เพื่อความปลอดภัย
     resave: false, //กำหนดว่า session ควรจะถูกบันทึกลงในฐานข้อมูลทุกครั้งที่มีการเปลี่ยนแปลง
     saveUninitialized: true, //กำหนดว่า session ควรถูกบันทึกถ้า session ไม่มีการเปลี่ยนแปลง
     cookie: { secure: false } // ตั้งค่าเกี่ยวกับ cookie ที่ใช้ในการเก็บ session ID ใช้กับ https เท่านั้น
 }));
-app.use(cookieParser());
-app.use(passport.initialize()); //ข้อมูลผู้ใช้ที่ได้จากการตรวจสอบตัวตน
-app.use(passport.session());
+
+
+authRouter.use(cookieParser());
+authRouter.use(passport.initialize()); //ข้อมูลผู้ใช้ที่ได้จากการตรวจสอบตัวตน
+authRouter.use(passport.session());
 
 
 passport.use(new LocalStrategy(
@@ -84,10 +89,12 @@ passport.deserializeUser(async (id, done) => { //session ID ที่ถูก�
     }
 });
 
-module.exports = async (req, res, next) => {
+authRouter.post('/login', async (req, res, next) => {
     passport.authenticate('local', {
-        successRedirect: '/', //path connect
-        failureRedirect: '/login', //path connect
+        successRedirect: '/',
+        failureRedirect: '/login',
         failureFlash: true
     })(req, res, next);
-};
+});
+
+module.exports = authRouter;

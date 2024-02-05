@@ -4,9 +4,11 @@ const port = 3000
 
 const personalRoute = require('./routes/personal');
 const educationRoute = require('./routes/education');
+const authRoute = require('./routes/login');
 
 app.use('/personal', personalRoute);
 app.use('/education', educationRoute);
+app.use('/auth', authRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
