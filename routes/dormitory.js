@@ -25,7 +25,7 @@ router.post('/bookRoom', async (req, res) => {
         console.error('Error booking room:', error);
         res.status(500).send('Error booking room');
     }
-  });
+});
 
 router.delete('/cancelDormBooking/:booking_id', async (req, res) => {
     try {

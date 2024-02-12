@@ -5,6 +5,8 @@ const fs = require('fs');
 const ejs = require('ejs');
 
 const pool = require('./../db')
+const path = require('path');
+const templatePath = path.join(__dirname, '..', 'template', 'email-template.html');
 conn = pool.getConnection();
 
 const transporter = nodemailer.createTransport({
@@ -16,7 +18,7 @@ const transporter = nodemailer.createTransport({
     });
   
   // Read email template file
-    const emailTemplate = fs.readFileSync('./../templete/email-template.html', 'utf8');
+    const emailTemplate = fs.readFileSync(templatePath, 'utf8');
     
     // Define a function to send email with template
     const sendEmailWithTemplate = (template, variables) => {
@@ -37,7 +39,6 @@ const transporter = nodemailer.createTransport({
         }
     });
 };
-
 
 router.get('/getList', async (req, res) => {
 
