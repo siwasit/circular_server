@@ -9,6 +9,7 @@ const dormRoute = require('./routes/dormitory');
 const roomBookingRoute = require('./routes/roomBooking');
 const bookBookingRoute = require('./routes/library');
 const transportationRoute = require('./routes/transportation')
+const healthRoute = require('./routes/้health')
 
 app.use('/personal', personalRoute);
 app.use('/education', educationRoute);
@@ -17,6 +18,7 @@ app.use('/dorm', dormRoute);
 app.use('/room-booking', roomBookingRoute);
 app.use('/book-booking', bookBookingRoute);
 app.use('/bus-check', transportationRoute);
+app.use('/health', healthRoute);
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
