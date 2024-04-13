@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router();
 const pool = require('./../db')
+const bodyParser = require('body-parser');
 
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 router.get('/vacentRoom' , async(req , res) => {
     try {
         const connection = await pool.getConnection();
-        const [rows] = await connection.query('SELECT * FROM room WHERE status = $1', ['Available']);
+        const [rows] = await connection.query('SELECT * FROM room');
         res.status(200).json(rows);
     } catch (error) {
         console.error('Error fetching vacant rooms:', error);

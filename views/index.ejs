@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Logout UI</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm" action="/auth/login" method="POST">
+        <label for="studentId">Username:</label>
+        <input type="text" id="studentId" name="studentId" required>
+        <br>
+        <label for="citizenId">Password:</label>
+        <input type="password" id="citizenId" name="citizenId" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+
+    <form id="logoutForm" action="/auth/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+
+    <div id="message"><%= message %></div>
+    <div id="sessionid"><%= sessionid %></div>
+    <!-- <script>
+            document.getElementById('loginForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const studentId = formData.get('studentId');
+            const citizenId = formData.get('citizenId');
+
+            try {
+                const response = await fetch('auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ studentId, citizenId })
+                });
+
+                if (response.ok) {
+                    const sessionId = response.headers.get('X-Session-ID');
+                    sessionStorage.setItem('sessionId', sessionId);
+                    // Redirect to dashboard or perform other actions
+                    window.location.href = '/';
+                } else {
+                    console.error('Login failed:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
+            }
+        });
+    </script> -->
+</body>
+</html>

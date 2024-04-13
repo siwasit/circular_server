@@ -3,11 +3,14 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const ejs = require('ejs');
+const bodyParser = require('body-parser');
 
 const pool = require('./../db')
 const path = require('path');
 const templatePath = path.join(__dirname, '..', 'template', 'email-template.html');
 conn = pool.getConnection();
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 
 const transporter = nodemailer.createTransport({
     service: 'Gmail', // or your email service provider
@@ -39,6 +42,22 @@ const transporter = nodemailer.createTransport({
         }
     });
 };
+
+router.get('/getEnroll/:studentId', async (req, res) => {
+    const studentId = req.params.studentId;
+
+    try {
+        const [data, fields] = await pool.execute('SELECT * FROM enrollment WHERE student_id = ?', [studentId]);
+        if (data.length === 0) {
+            res.status(404).json({ message: 'Not found'});
+        } else {
+            res.json(data);
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+})
 
 router.get('/getList', async (req, res) => {
 

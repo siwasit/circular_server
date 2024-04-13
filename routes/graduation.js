@@ -1,8 +1,12 @@
 const express = require('express')
 const router = express.Router();
+const bodyParser = require('body-parser');
 
 const pool = require('./../db')
 conn = pool.getConnection();
+
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 
 router.get('/:studentId', async (req, res) => {
     const studentId = req.params.studentId;
@@ -13,21 +17,23 @@ router.get('/:studentId', async (req, res) => {
             'SELECT SUM(CASE grade WHEN "A" THEN 4 WHEN "B" THEN 3 WHEN "C" THEN 2 WHEN "D" THEN 1 ELSE 0 END) / COUNT(*) AS gpa FROM transcript WHERE student_id = ? AND grade != "F"',
             [studentId]
         );
-        const gpa = gpaRows[0].gpa;
+        const gpa = gpaRows.gpa;
 
         // Check if there are any F grades
         const [hasFRows] = await pool.execute(
             'SELECT COUNT(*) AS hasF FROM transcript WHERE student_id = ? AND grade = "F"',
             [studentId]
         );
-        const hasF = hasFRows[0].hasF > 0;
+
+        const hasF = hasFRows.hasF > 0;
 
         // Count the number of finished subjects
         const [subjectCountRows] = await pool.execute(
             'SELECT COUNT(*) AS subjectCount FROM transcript WHERE student_id = ?',
             [studentId]
         );
-        const subjectCount = subjectCountRows[0].subjectCount;
+        const subjectCount = subjectCountRows.subjectCount;
+        console.log(subjectCount)
 
         // Check if the student meets graduation requirements (no F grades, >= 40 subjects, and GPA >= 2.0)
         if (!hasF && subjectCount >= 40 && gpa >= 2.0) {

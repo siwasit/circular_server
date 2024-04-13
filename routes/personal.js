@@ -1,14 +1,18 @@
 const express = require('express')
 const router = express.Router();
+const bodyParser = require('body-parser');
 
 const pool = require('./../db')
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 conn = pool.getConnection();
 
-router.get('/request/:citizenId', async (req, res) => {
-    const citizenId = req.params.citizenId;
+router.get('/:studentId', async (req, res) => {
+    const studentId = req.params.studentId;
+    console.log(studentId)
 
     try {
-        const [data, fields] = await pool.execute('SELECT * FROM student WHERE citizen_id = ?', [citizenId]);
+        const [data, fields] = await pool.execute('SELECT * FROM student WHERE Student_id = ?', [studentId]);
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {
@@ -21,6 +25,7 @@ router.get('/request/:citizenId', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
+    console.log(req.body)
     const { name, eng_name, faculty, branch, level, citizen_id, address, email, student_img, age, tel } = req.body;
     try {
         conn = await pool.getConnection();
@@ -29,8 +34,7 @@ router.post('/', async (req, res) => {
             [name, eng_name, faculty, branch, level, citizen_id, address, email, student_img || null, age, tel]
         );
 
-        const studentId = result.insertId;
-        res.status(201).json({ message: 'Student record created successfully', studentId });
+        res.status(201).json({ message: 'Student record created successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).send('Internal Server Error');
@@ -66,7 +70,7 @@ router.put('/update/:studentId', async (req, res) => {
     }
 })
 
-router.get('/redirect', (req, res) => {
+router.get('/bank/redirect', (req, res) => {
     // Assuming the other application is running on a different port (e.g., 3001)
     const otherAppUrl = 'https://www.example.com/';
   

@@ -1,12 +1,15 @@
 const express = require('express')
 const router = express.Router();
+const bodyParser = require('body-parser');
 
 const pool = require('./../db')
 conn = pool.getConnection();
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 
 router.get('/', async (req, res) => {
     try {
-        const [data, fields] = await pool.execute('SELECT * FROM scholarship');
+        const data = await pool.execute('SELECT * FROM scholarship');
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {
@@ -31,7 +34,7 @@ router.post('/:studentId', async (req, res) => {
         }
 
         // Insert scholarship data into the scholarship table
-        const result = await conn.execute(
+        const result = await pool.execute(
             'INSERT INTO scholarship_enroll (student_id, scholarship_id, status) VALUES (?, ?, ?)',
             [studentId, scholarship_id, 'Waiting']
         );

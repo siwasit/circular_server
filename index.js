@@ -1,4 +1,6 @@
 const express = require('express')
+const bodyParser = require('body-parser');
+const session = require('express-session');
 const app = express()
 const port = 3000
 
@@ -34,6 +36,20 @@ app.use('/entertainment', entertainmentRoute);
 app.use('/complain', complainRoute);
 app.use('/endyourlife', doneEnrollRoute);
 
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+// Set the directory for the views (optional if the views directory is named 'views')
+app.set('views', __dirname + '/views');
+
+app.use(session({
+  secret: 'Zbl5nHFobbasfWehqlklxed8GDR1Etdy', // Change this to a random string
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Middleware to parse incoming request bodies
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
   res.send('Hello World!')

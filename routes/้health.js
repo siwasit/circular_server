@@ -1,68 +1,60 @@
 const express = require('express');
 const router = express.Router();
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-const ejs = require('ejs');
+const pool = require('./../db')
+const bodyParser = require('body-parser');
 
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: 'your-email@gmail.com',
-        pass: 'your-email-password',
-    },
-});
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
 
-const path = require('path');
-const templatePath = path.join(__dirname, '..', 'template', 'email-template.html');
-const emailTemplate = fs.readFileSync(templatePath, 'utf8');
-
-const sendEmailWithTemplate = (mailOptions) => {
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error occurred while sending email:', error);
+// สร้าง Router สำหรับ GET ข้อมูลการนัดหมาย
+router.get('/get-appointments', async (req, res) => {
+    try {
+        const data = await pool.query('SELECT * FROM appointments');
+        if (data.length === 0) {
+            res.status(404).json({ message: 'Not found'});
         } else {
-            console.log('Email sent:', info.response);
+            res.json(data);
         }
-    });
-};
-
-router.get('/AlertEmergency', async (req, res) => {
-    const { name, studentId, faculty, address } = req.query;
-    const currentDate = new Date().toDateString();
-    try {
-        const renderedEmail = ejs.render(emailTemplate, { currentDate, name, studentId, faculty, address });
-        const mailOptions = {
-            from: 'your-email@gmail.com',
-            to: 'engr@example.com',
-            subject: 'Emergency Email',
-            html: renderedEmail,
-        };
-        sendEmailWithTemplate(mailOptions);
-        res.send('Email sent successfully!');
     } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).send('Error sending email');
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+  
+   // สร้าง Router สำหรับ POST การนัดหมาย
+router.post('/add-appointments', async (req, res) => {
+    const { studentId, appointmentDate, subject } = req.body;
+    try {
+        const result = await pool.query('INSERT INTO appointments (studentId, appointmentDate, subject) VALUES (?, ?, ?)', [studentId, appointmentDate, subject]);
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'appointment send successfully' });
+        } else {
+            res.status(400).json({ message: 'Failed to send appointment' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+  
+  // สร้าง Router สำหรับ PUT อัปเดตสถานะการนัดหมาย
+router.put('/update-appointments', async (req, res) => {
+    const { appoint_id, aptStatus } = req.body;
+    console.log(appoint_id, aptStatus);
+    try {
+        conn = await pool.getConnection();
+        const result = await conn.execute('UPDATE appointments SET status = ? WHERE appoint_id = ?', [aptStatus, appoint_id]);
+        if (result.affectedRows > 0) {
+            res.status(200).json({ message: 'Appointment status set successfully' });
+        } else {
+            console.log(result)
+            res.status(400).json({ message: 'Failed to set appointment status' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
-router.get('/AppointmentData', async (req, res) => {
-    const { name, studentId, faculty, appointmentdata } = req.query; 
-    const currentDate = new Date().toDateString();
-    try {
-        const renderedEmail = ejs.render(emailTemplate, { currentDate, name, studentId, faculty, appointmentdata });
-        const mailOptions = {
-            from: 'your-email@gmail.com',
-            to: 'engr@example.com',
-            subject: 'Appointment Email',
-            html: renderedEmail,
-        };
-        sendEmailWithTemplate(mailOptions);
-        res.send('Email sent successfully!');
-    } catch (error) {
-        console.error('Error sending email:', error);
-        res.status(500).send('Error sending email');
-    }
-
-});
 
 module.exports = router;

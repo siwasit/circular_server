@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
+const bodyParser = require('body-parser');
 
 const pool = require('./../db');
 conn = pool.getConnection();
 
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }))
+
 router.get('/book-list', async (req, res) => {
 
     try {
-        const [data, fields] = await pool.execute('SELECT * FROM book;');
+        const data = await pool.execute('SELECT * FROM book;');
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {
@@ -54,7 +58,7 @@ router.put('/update/:bookId', async (req, res) => {
     try {
         conn = await pool.getConnection();
         const result = await conn.execute(
-            'UPDATE book_booking SET status = ? WHERE Student_id = ?',
+            'UPDATE book_booking SET status = ? WHERE book_id = ?',
             [status, bookId]
         );
 

@@ -5,11 +5,11 @@ const qr = require('qrcode');
 const pool = require('./../db')
 conn = pool.getConnection();
 
-router.get('/:citizenId', async (req, res) => {
-    const citizenId = req.params.citizenId;
+router.get('/:studentId', async (req, res) => {
+    const studentId = req.params.studentId;
 
     try {
-        const [data, fields] = await pool.execute('SELECT * FROM payment WHERE citizen_id = ?', [citizenId]);
+        const [data, fields] = await pool.execute('SELECT * FROM payment WHERE student_id = ?', [studentId]);
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {
