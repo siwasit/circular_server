@@ -31,11 +31,22 @@ router.post('/bookRoom', async (req, res) => {
     }
 });
 
-router.get('/roomBooking', async(req, res) => {
+router.get('/roomBooking/:studentId', async(req, res) => {
+    const studentId = req.params.studentId
     try {
         const connection = await pool.getConnection();
-        const data = await connection.execute('SELECT * FROM room_booking');
-        res.status(200).json(data);
+        const data = await connection.execute(`
+        SELECT rr.RBooking_id, rr.duration, r.name, r.location, s.eng_name
+        FROM room_booking rr
+        JOIN room r ON rr.room_id = r.Room_id
+        JOIN student s On rr.student_id = s.Student_id
+        WHERE rr.student_id = ?;
+        `, [studentId]);
+        if (data.length === 0) {
+            res.status(404).json({ message: 'Not found'});
+        } else {
+            res.json(data);
+        }
     } catch (error) {
         console.error('Error fetching room bookings:', error);
         res.status(500).json({ error: 'Failed to fetch room bookings' });
@@ -46,11 +57,11 @@ router.delete('/cancelRoomBooking/:bookingId', async(req, res) => {
     const bookingId = req.params.bookingId;
     try {
         const connection = await pool.getConnection();
-        const [rows, fields] = await connection.execute('SELECT * FROM room_booking WHERE RBooking_id = ?', [bookingId]);
-        if (rows.length === 0) {
-            return res.status(404).json({ error: 'Booking not found' });
-        }
-        await pool.execute('DELETE FROM room_booking WHERE RBooking_id = ?', [bookingId]);
+        // const [rows, fields] = await connection.execute('SELECT * FROM room_booking WHERE RBooking_id = ?', [bookingId]);
+        // if (rows.length === 0) {
+        //     return res.status(404).json({ error: 'Booking not found' });
+        // }
+        await connection.execute('DELETE FROM room_booking WHERE RBooking_id = ?', [bookingId]);
         res.status(200).json({ message: 'Booking deleted successfully' });
     } catch (error) {
         console.error('Error deleting booking:', error);

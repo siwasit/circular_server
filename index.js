@@ -2,7 +2,17 @@ const express = require('express')
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const app = express()
+
 const port = 3000
+
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "http://localhost:8081",
+  })
+);
+ 
 
 const personalRoute = require('./routes/personal');
 const educationRoute = require('./routes/education');
@@ -11,7 +21,7 @@ const dormRoute = require('./routes/dormitory');
 const roomBookingRoute = require('./routes/roomBooking');
 const bookBookingRoute = require('./routes/library');
 const transportationRoute = require('./routes/transportation')
-const healthRoute = require('./routes/้health')
+const healthRoute = require('./routes/health')
 const payRoute = require('./routes/payment')
 const scholarshipEnrollRoute = require('./routes/scholarship')
 const doneEnrollRoute = require('./routes/graduation')
@@ -52,8 +62,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
+  const jsonData = { message: 'Hello World!' };
+  res.json(jsonData);
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

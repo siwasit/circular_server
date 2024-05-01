@@ -23,21 +23,28 @@ router.post('/login', async (req, res) => {
     const { citizenId } = req.body;
     const studentId = parseInt(req.body.studentId, 10); // Assuming base 10    
     // console.log(citizenId, studentId)
-  
+
     try {
         const connection = await pool.getConnection();
-        const data = await connection.query('SELECT Student_id, citizen_id FROM student WHERE Student_id = ? AND citizen_id = ?', [studentId, citizenId]);
+        const data = await connection.query('SELECT * FROM student WHERE Student_id = ? AND citizen_id = ?', [studentId, citizenId]);
         if (data.length === 1) {
             // Store user data in session
             req.session.user = data[0];
             res.setHeader('X-Session-ID', req.sessionID);
-            res.render('index', { message: `Login successful your session id is ${req.sessionID}`, sessionid: req.sessionID });
+            // Send JSON response with session ID and user data Student_id, citizen_id, eng_name
+            res.json({ 
+                message: 'Login successful',
+                sessionID: req.sessionID,
+                userData: data[0]
+            });
         } else {
-            res.render('index', { message: 'invalid username or password', sessionid: '' });
+            // Send JSON response indicating invalid credentials
+            res.status(401).json({ message: 'Invalid username or password' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).send('Internal Server Error');
+        // Send JSON response indicating internal server error
+        res.status(500).json({ message: 'Internal Server Error' });
     }
 });
 

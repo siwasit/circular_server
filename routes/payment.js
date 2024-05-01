@@ -9,7 +9,8 @@ router.get('/:studentId', async (req, res) => {
     const studentId = req.params.studentId;
 
     try {
-        const [data, fields] = await pool.execute('SELECT * FROM payment WHERE student_id = ?', [studentId]);
+        const data = await pool.query('SELECT * FROM payment WHERE student_id = ?', [studentId]);
+        // const [data, fields] = await pool.execute('SELECT * FROM payment WHERE student_id = ?', [studentId]);
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {

@@ -82,11 +82,13 @@ router.get('/booking-list/:studentId', async (req, res) => {
     const studentId = req.params.studentId
 
     try {
-        conn = await pool.getConnection();
-        const data = await conn.execute(
-            'SELECT * FROM book_booking WHERE student_id = ?;',
-            [studentId]
-        );
+        const data = await pool.query(`
+        SELECT b.book_name, b.author, bb.booking_date, bb.return_date, bb.status
+        FROM book_booking bb
+        JOIN book b ON bb.book_id = b.Book_id
+        WHERE bb.student_id = ?;
+        `, [studentId]);
+
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {

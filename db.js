@@ -6,7 +6,7 @@ const pool = mariadb.createPool({
      user:'root', 
      password: 'qwerty1234',
      database: 'sf221_project',
-     connectionLimit: 20
+    connectionLimit: 2000
 });
 
 pool.getConnection()

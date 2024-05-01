@@ -7,9 +7,10 @@ router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }))
 
 // สร้าง Router สำหรับ GET ข้อมูลการร้องเรียน
-router.get('/get-complains', async (req, res) => {
+router.get('/get-complains/:studentId', async (req, res) => {
+    const studentId = req.params.studentId;
     try {
-        const data = await pool.query('SELECT * FROM complain');
+        const data = await pool.query('SELECT * FROM complain WHERE student_id = ?', [studentId]);
         if (data.length === 0) {
             res.status(404).json({ message: 'Not found'});
         } else {
@@ -25,7 +26,7 @@ router.get('/get-complains', async (req, res) => {
 router.post('/add-complains', async (req, res) => {
     const { studentId, subject, description } = req.body;
     try {
-        const result = await pool.query('INSERT INTO complain (studentId, subject, description) VALUES (?, ?, ?)', [studentId, subject, description]);
+        const result = await pool.query('INSERT INTO complain (student_id, subject, description) VALUES (?, ?, ?)', [studentId, subject, description]);
         if (result.affectedRows > 0) {
             res.status(200).json({ message: 'complain send successfully' });
         } else {
